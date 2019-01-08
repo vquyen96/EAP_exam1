@@ -5,14 +5,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using EAP_exam1.Models;
+using EAP_exam1.Data;
 
 namespace EAP_exam1.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly MyContext _context;
+
+        public HomeController(MyContext context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
-            return View();
+            return View(_context.Money);
         }
 
         public IActionResult About()

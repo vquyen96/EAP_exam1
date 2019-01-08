@@ -29,22 +29,22 @@ namespace EAP_exam1.Controllers
         }
 
         // GET: api/Moneys/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetMoney([FromRoute] string id)
+        [HttpGet("{id}/{value}")]
+        public async Task<IActionResult> GetMoney([FromRoute] string id, int value)
         {
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var money = await _context.Money.FindAsync(id);
-
-            if (money == null)
+            var changeMoney = await _context.Money.SingleOrDefaultAsync(c => c.Id == id);
+            if (changeMoney == null)
             {
-                return NotFound();
+                return Conflict("Đơn vị tiền tệ không đúng");
             }
 
-            return Ok(money);
+            return new JsonResult(value * changeMoney.Ratio);
         }
 
         // PUT: api/Moneys/5
@@ -82,19 +82,23 @@ namespace EAP_exam1.Controllers
             return NoContent();
         }
 
-        // POST: api/Moneys
-        [HttpPost]
-        public async Task<IActionResult> PostMoney([FromBody] Money money)
+        // POST: api/Moneys/USD
+        [HttpPost("{Id}")]
+        public async Task<IActionResult> PostMoney([FromRoute] string Id, [FromBody] int value)
         {
+            //return new JsonResult(value);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Money.Add(money);
-            await _context.SaveChangesAsync();
+            var changeMoney = await _context.Money.SingleOrDefaultAsync(c => c.Id == Id);
+            if (changeMoney == null)
+            {
+                return Conflict("Đơn vị tiền tệ không đúng");
+            }
 
-            return CreatedAtAction("GetMoney", new { id = money.Id }, money);
+            return new JsonResult(value * changeMoney.Ratio);
         }
 
         // DELETE: api/Moneys/5
